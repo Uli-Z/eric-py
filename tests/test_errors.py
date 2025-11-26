@@ -1,7 +1,7 @@
 """FFI error handling tests for ERiC wrapper."""
 
-from eric.errors import EricError, check_eric_result
-from eric.types import EricErrorCode
+from eric_py.errors import EricError, check_eric_result
+from eric_py.types import EricErrorCode
 
 
 def test_check_eric_result_ok_does_not_raise():
@@ -17,4 +17,3 @@ def test_check_eric_result_raises_on_error():
         assert "boom" in str(exc)
     else:
         assert False, "EricError was not raised"
-

@@ -53,6 +53,12 @@ EricCheckXML.argtypes = [
 ]
 EricCheckXML.restype = ctypes.c_int
 
+EricHoleTestfinanzaemter = _ericapi.EricHoleTestfinanzaemter
+EricHoleTestfinanzaemter.argtypes = [
+    EricRueckgabepufferHandle,  # rueckgabeXmlPuffer
+]
+EricHoleTestfinanzaemter.restype = ctypes.c_int
+
 EricHoleFehlerText = _ericapi.EricHoleFehlerText
 EricHoleFehlerText.argtypes = [ctypes.c_int, EricRueckgabepufferHandle]
 EricHoleFehlerText.restype = ctypes.c_int

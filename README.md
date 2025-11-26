@@ -1,5 +1,11 @@
 # eric-py
 
+**Status: early-stage draft.**  
+This project is a quickly assembled, minimally reviewed prototype of Python
+bindings for ERiC. While a fair amount of time and care has already gone into
+its design and tests, it should still be considered experimental. It is shared
+in the hope that it is useful to others, but without any guarantees.
+
 Python bindings and helpers for ERiC (ELSTER Rich Client).
 
 This library provides:
@@ -8,8 +14,9 @@ This library provides:
 - A small error and type layer (`EricError`, `EricErrorCode`, etc.).
 
 The ERiC binaries and header files are **not** included in this repository.
-You must install the official ERiC distribution yourself and point `eric-py`
-to it via environment variables (see below).
+You must obtain the official ERiC distribution yourself (for example from the
+ELSTER developer portal) and point `eric-py` to it via environment variables
+and/or configuration (see below).
 
 ## Installation
 
@@ -33,19 +40,29 @@ and extended for Python.
 After installation you can use the high-level facade:
 
 ```python
-from eric.facade import EricClient
+from eric_py.facade import EricClient
 
 with EricClient() as client:
     result = client.validate_xml("<YourXML/>", "ESt_2020")
     print(result.validation_response)
 ```
 
-For lower-level control you can import from `eric.api`, `eric.types`, and `eric.errors`.
+For lower-level control you can import from `eric_py.api`, `eric_py.types`, and `eric_py.errors`.
+
+An executable walking-skeleton example is provided in `examples/m2a_walking_skeleton.py`.
+It expects:
+
+- `ERIC_EXAMPLE_XML`: path to an XML file to validate
+- optional `ERIC_EXAMPLE_DAV`: ERiC datenartVersion string (default `Bilanz_6.5`)
+
+For a more detailed description of the available Python API, see
+`docs/python-api.md` in this repository.
 
 ## Configuration
 
 `eric-py` never ships ERiC itself. You must obtain ERiC from the official
-source and configure its location via environment variables:
+ELSTER developer resources and configure its location via environment
+variables:
 
 - `ERIC_HOME` (required): absolute path to the ERiC root directory that
   contains `lib/libericapi.so` and `erictoolkit/liberictoolkit.so`.
@@ -71,7 +88,7 @@ ERiC version(s):
 The Python API supports selecting different ERiC installations by path:
 
 ```python
-from eric.facade import EricClient
+from eric_py.facade import EricClient
 
 with EricClient(eric_home="/opt/eric/41.6.2.0/Linux-x86_64") as client:
     ...
@@ -89,6 +106,43 @@ Install dev dependencies and run tests:
 pip install -e .[dev]
 pytest
 ```
+
+### Testing with a local ERiC distribution
+
+For integration tests, place the official ERiC distribution alongside this
+repository (but **outside** the Git checkout) and/or point `ERIC_HOME` to it.
+One recommended layout for ERiC 41.6.2.0 is:
+
+```text
+/path/to/workspace/
+  ERiC-41.6.2.0/
+    Linux-x86_64/
+      lib/libericapi.so
+      erictoolkit/liberictoolkit.so
+  eric-py/
+    ...
+```
+
+If `ERIC_HOME` is not set, the test suite will automatically use
+`../ERiC-41.6.2.0/Linux-x86_64` relative to the repository root when present.
+
+Sending XML to ELSTER is not executed by default. To opt into send tests,
+you must provide credentials and explicitly enable them:
+
+- `ERIC_TEST_ENABLE_SEND=1`
+- `CERTIFICATE_PATH` and `CERTIFICATE_PASSWORD` for your certificate
+- `ERIC_EXAMPLE_XML` pointing to a suitable XML document
+- optional `ERIC_EXAMPLE_DAV` for the ERiC `datenartVersion`
+
+Without these variables, send-related tests are skipped; only local
+initialization and validation flows are exercised.
+
+You can also optionally validate the official ESt_2020 tutorial example XML
+by pointing `ERIC_TUTORIAL_EXAMPLES` to the directory containing the ERiC
+Tutorial example files (for example, `Dokumentation/Tutorial/Beispiele` from
+the ERiC distribution). In this case, a dedicated test will invoke
+`EricCheckXML` on `ESt_2020-Beispiel_Loesung.xml` without asserting any
+specific return code.
 
 ## Disclaimer
 

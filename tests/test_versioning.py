@@ -1,10 +1,11 @@
 """Tests for ERiC versioning helpers."""
 
-from eric.versioning import (
+from eric_py.versioning import (
     DEFAULT_ERIC_VERSION,
     SUPPORTED_ERIC_VERSIONS,
     VERSION_CONFIGS,
     EricVersionConfig,
+    detect_eric_version,
     is_supported_version,
     list_supported_versions,
 )

@@ -19,5 +19,7 @@ dev = ["pytest", "ruff"]
 Homepage = "https://github.com/your-org/eric-py"
 
 [tool.setuptools.packages.find]
-include = ["eric*"]
+include = ["eric_py*"]
 
+[tool.setuptools.package-data]
+eric_py = []
