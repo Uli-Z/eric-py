@@ -12,6 +12,11 @@ workflows with OpenAI GPT 5.1, followed by manual review and adaptation.
 
 Python bindings and helpers for ERiC (ELSTER Rich Client).
 
+ERiC (ElsterRichClient) is the official C-based client library provided by the
+German tax authorities for creating, validating and transmitting ELSTER tax
+data (e.g. income tax, eBilanz). It exposes a C API (`libericapi.so` and
+friends) that applications can embed to talk to the ELSTER infrastructure.
+
 This library provides:
 - `ctypes` bindings for `libericapi.so` and related ERiC libraries.
 - High-level helpers for initializing ERiC and running validation / send workflows.
