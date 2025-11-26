@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.so
+*.dll
+*.dylib
+
+.venv/
+env/
+venv/
+
+dist/
+build/
+*.egg-info/
+
+# Do not commit ERiC SDK binaries or headers
+ERiC/
+eric-sdk/
+*.h
+libericapi.*
+liberictoolkit.*
+
