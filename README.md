@@ -6,6 +6,10 @@ bindings for ERiC. While a fair amount of time and care has already gone into
 its design and tests, it should still be considered experimental. It is shared
 in the hope that it is useful to others, but without any guarantees.
 
+`eric-py` started as an automated port of key ideas and APIs from the Rust
+project [`eric-rs`](https://github.com/quambene/eric-rs), using agentic-coding
+workflows with OpenAI GPT 5.1, followed by manual review and adaptation.
+
 Python bindings and helpers for ERiC (ELSTER Rich Client).
 
 This library provides:
@@ -110,7 +114,7 @@ pytest
 ### Testing with a local ERiC distribution
 
 For integration tests, place the official ERiC distribution alongside this
-repository (but **outside** the Git checkout) and/or point `ERIC_HOME` to it.
+repository and/or point `ERIC_HOME` to it.
 One recommended layout for ERiC 41.6.2.0 is:
 
 ```text
