@@ -1,4 +1,4 @@
-Copyright [yyyy] [Your Name]
+Copyright 2025 Ulrich Zorn (https://github.com/Uli-Z)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,3 +16,6 @@ This project was inspired by the Rust project "eric-rs"
 (https://github.com/quambene/eric-rs), which is also licensed under
 the Apache License, Version 2.0.
 
+Significant portions of this codebase were created and refactored
+with the help of agentic-coding tools (OpenAI GPT 5.1), under the
+direction and review of the project maintainer.

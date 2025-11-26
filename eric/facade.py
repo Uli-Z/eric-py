@@ -10,7 +10,14 @@ from typing import Optional
 
 from . import api
 from .errors import check_eric_result
-from .loader import eric_plugin_path
+from .loader import EricLibraryLoadError, eric_plugin_path
+from .versioning import (
+    DEFAULT_ERIC_VERSION,
+    EricVersionConfig,
+    SUPPORTED_ERIC_VERSIONS,
+    VERSION_CONFIGS,
+    detect_eric_version,
+)
 from .types import (
     EricBearbeitungFlag,
     EricPdfCallback,
@@ -34,10 +41,56 @@ class EricResult:
 class EricClient:
     """Context-managed ERiC client for single-threaded workflows."""
 
-    def __init__(self, eric_home: Optional[os.PathLike[str] | str] = None, log_dir: Optional[os.PathLike[str] | str] = None):
+    def __init__(
+        self,
+        eric_home: Optional[os.PathLike[str] | str] = None,
+        log_dir: Optional[os.PathLike[str] | str] = None,
+        eric_version: Optional[str] = None,
+    ):
         self.eric_home = Path(eric_home) if eric_home else eric_plugin_path()
         self.log_dir = Path(log_dir) if log_dir else Path.cwd()
         self._initialized = False
+        # Detect ERiC version from installation path, then merge with explicit
+        # selection and environment expectations.
+        detected_version = detect_eric_version(self.eric_home)
+        self.detected_eric_version: Optional[str] = detected_version
+
+        # Start from explicit version (if provided), otherwise auto-detected,
+        # otherwise fall back to the default supported version.
+        version_key = eric_version or detected_version or DEFAULT_ERIC_VERSION
+
+        expected_env = os.environ.get("ERIC_EXPECTED_VERSION")
+        policy = os.environ.get("ERIC_VERSION_POLICY", "warn").lower()
+
+        def _handle_mismatch(msg: str) -> None:
+            if policy == "strict":
+                raise EricLibraryLoadError(msg)
+            if policy == "warn":
+                print(f"[eric-py] WARNING: {msg}")
+
+        if expected_env and version_key != expected_env:
+            _handle_mismatch(
+                f"Configured ERiC version '{version_key}' does not match "
+                f"ERIC_EXPECTED_VERSION='{expected_env}'."
+            )
+
+        if detected_version and detected_version != version_key:
+            _handle_mismatch(
+                f"Auto-detected ERiC version '{detected_version}' from "
+                f"path {self.eric_home} differs from configured '{version_key}'."
+            )
+
+        if version_key not in SUPPORTED_ERIC_VERSIONS:
+            _handle_mismatch(
+                f"ERiC version '{version_key}' is not in supported set "
+                f"{SUPPORTED_ERIC_VERSIONS}."
+            )
+
+        # Configuration for the selected ERiC version (struct versions etc.).
+        self.version_config: EricVersionConfig = VERSION_CONFIGS.get(
+            version_key,
+            VERSION_CONFIGS[DEFAULT_ERIC_VERSION],
+        )
 
     def __enter__(self) -> "EricClient":
         self.initialize()

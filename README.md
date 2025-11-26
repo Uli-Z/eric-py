@@ -61,6 +61,26 @@ The loader uses the following resolution order:
 
 If neither is set, an `EricLibraryLoadError` is raised with a detailed hint.
 
+## Supported ERiC versions
+
+For this release, `eric-py` is developed and tested against the following
+ERiC version(s):
+
+- `41.6.2.0`
+
+The Python API supports selecting different ERiC installations by path:
+
+```python
+from eric.facade import EricClient
+
+with EricClient(eric_home="/opt/eric/41.6.2.0/Linux-x86_64") as client:
+    ...
+```
+
+Future releases may extend the list of supported versions. If you point
+`ERIC_HOME` to a different ERiC version, you should run your own tests to
+verify compatibility for your use case.
+
 ## Development
 
 Install dev dependencies and run tests:
@@ -69,3 +89,18 @@ Install dev dependencies and run tests:
 pip install -e .[dev]
 pytest
 ```
+
+## Disclaimer
+
+This software is provided on a best-effort, experimental basis only.
+It does not constitute legal, tax, or professional advice. Use it at
+your own risk. The author (Ulrich Zorn) and contributors assume no
+responsibility or liability for any errors, data loss, financial damage,
+or other consequences arising from the use of this project.
+
+## Provenance
+
+Large parts of this repository (project scaffolding, FFI bindings and
+documentation text) were created and iterated on using agentic-coding
+tools (OpenAI GPT 5.1), under the guidance and review of the maintainer
+[@Uli-Z](https://github.com/Uli-Z).
