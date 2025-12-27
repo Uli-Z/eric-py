@@ -16,15 +16,17 @@ class EricVersionConfig:
     eric_version: str
     druck_param_version: int
     crypto_param_version: int
+    binding_module: str
 
 
 # Officially supported ERiC versions for this eric-py release.
 SUPPORTED_ERIC_VERSIONS: Tuple[str, ...] = (
     "41.6.2.0",
+    "43.3.2.0",
 )
 
 # Default ERiC version if none is specified explicitly.
-DEFAULT_ERIC_VERSION: str = SUPPORTED_ERIC_VERSIONS[0]
+DEFAULT_ERIC_VERSION: str = "43.3.2.0"
 
 # Per-version configuration map. Extend this as new versions are validated.
 VERSION_CONFIGS: Dict[str, EricVersionConfig] = {
@@ -32,6 +34,13 @@ VERSION_CONFIGS: Dict[str, EricVersionConfig] = {
         eric_version="41.6.2.0",
         druck_param_version=4,
         crypto_param_version=3,
+        binding_module="eric_py.bindings.v41",
+    ),
+    "43.3.2.0": EricVersionConfig(
+        eric_version="43.3.2.0",
+        druck_param_version=4,
+        crypto_param_version=3,
+        binding_module="eric_py.bindings.v43",
     ),
 }
 

@@ -134,18 +134,32 @@ def test_send_requires_opt_in_and_credentials() -> None:
     datenart_version = os.environ.get("ERIC_EXAMPLE_DAV", "Bilanz_6.5")
     xml_text = xml_path.read_text(encoding="utf-8")
 
+    # Optional: Replace manufacturer ID if provided
+    vendor_id = os.environ.get("ERIC_TEST_VENDOR_ID")
+    if vendor_id:
+        import re
+        xml_text = re.sub(r"<HerstellerID>.*?</HerstellerID>", f"<HerstellerID>{vendor_id}</HerstellerID>", xml_text)
+
     try:
+        pdf_path = Path.cwd() / "test_send_output.pdf"
         with EricClient() as client:
             result = client.send_xml(
                 xml_text=xml_text,
                 datenart_version=datenart_version,
                 certificate_path=cert_path,
                 pin=cert_pin,
+                pdf_path=pdf_path,
             )
         assert isinstance(result.code, int)
-    except EricError:
+        assert result.code == 0, f"Send failed with code {result.code}. Validation: {result.validation_response}"
+        assert pdf_path.exists(), "PDF output file was not created"
+        # Only check success if we expect a successful transmission (code 0)
+        if result.code == 0:
+             assert "<Erfolg>" in result.validation_response or "<Erfolg/>" in result.validation_response
+    except EricError as e:
         # A semantic or validation error is acceptable for this opt-in test;
         # the important part is that the call path and bindings are exercised.
-        pytest.xfail("ERiC returned an error code during send test")
+        # However, if we provided valid credentials, we ideally want success.
+        pytest.fail(f"ERiC returned an error code during send test: {e}")
     except EricLibraryLoadError:
         pytest.skip("ERiC libraries could not be loaded for send test")

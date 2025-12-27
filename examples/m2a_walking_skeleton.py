@@ -40,8 +40,11 @@ def main() -> int:
     datenart_version = os.environ.get("ERIC_EXAMPLE_DAV", "Bilanz_6.5")
 
     xml_text = xml_path.read_text(encoding="utf-8")
-    # Replace the placeholder Hersteller-ID with a neutral value for validation-only runs.
-    xml_text = xml_text.replace("<HerstellerID>74931</HerstellerID>", "<HerstellerID>00000</HerstellerID>")
+    
+    # Replace the Hersteller-ID with the value from environment or a neutral placeholder.
+    import re
+    vendor_id = os.environ.get("ERIC_TEST_VENDOR_ID", "00000")
+    xml_text = re.sub(r"<HerstellerID>.*?</HerstellerID>", f"<HerstellerID>{vendor_id}</HerstellerID>", xml_text)
 
     try:
         with EricClient() as client:

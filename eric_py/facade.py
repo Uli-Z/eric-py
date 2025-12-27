@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import ctypes
+import importlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from . import api
 from .errors import check_eric_result
@@ -23,8 +24,6 @@ from .types import (
     EricPdfCallback,
     EricTransferHandle,
     EricZertifikatHandle,
-    eric_druck_parameter_t,
-    eric_verschluesselungs_parameter_t,
 )
 
 
@@ -91,6 +90,10 @@ class EricClient:
             version_key,
             VERSION_CONFIGS[DEFAULT_ERIC_VERSION],
         )
+        
+        # Load the dynamic bindings module
+        self.bindings: Any = importlib.import_module(self.version_config.binding_module)
+        api.configure_bindings(self.bindings)
 
     def __enter__(self) -> "EricClient":
         self.initialize()
@@ -112,12 +115,17 @@ class EricClient:
         check_eric_result(rc, api.get_error_text(rc))
         self._initialized = False
 
-    def _build_print_params(self, pdf_path: Optional[Path], preview: bool) -> Optional[eric_druck_parameter_t]:
+    def _build_print_params(self, pdf_path: Optional[Path], preview: bool) -> Optional[Any]:
         if pdf_path is None:
             return None
-        params = eric_druck_parameter_t()
+        # Use dynamic struct from self.bindings
+        params = self.bindings.eric_druck_parameter_t()
         params.vorschau = 1 if preview else 0
-        params.ersteSeite = 0
+        
+        # Only set ersteSeite if the struct supports it (backward compatibility for v41)
+        if hasattr(params, "ersteSeite"):
+            params.ersteSeite = 0
+            
         params.duplexDruck = 0
         params.pdfName = str(pdf_path).encode("utf-8")
         params.fussText = None
@@ -125,11 +133,16 @@ class EricClient:
         params.pdfCallbackBenutzerdaten = None
         return params
 
-    def _build_crypto_params(self, cert_handle: EricZertifikatHandle, pin: Optional[str]) -> eric_verschluesselungs_parameter_t:
-        params = eric_verschluesselungs_parameter_t()
+    def _build_crypto_params(self, cert_handle: EricZertifikatHandle, pin: Optional[str]) -> Any:
+        # Use dynamic struct from self.bindings
+        params = self.bindings.eric_verschluesselungs_parameter_t()
         params.zertifikatHandle = cert_handle
         params.pin = pin.encode("utf-8") if pin is not None else None
-        params.abrufCode = None
+        
+        # Only set abrufCode if the struct supports it (backward compatibility for v41)
+        if hasattr(params, "abrufCode"):
+            params.abrufCode = None
+            
         return params
 
     def validate_xml(self, xml_text: str, datenart_version: str, pdf_path: Optional[os.PathLike[str] | str] = None) -> EricResult:
@@ -193,8 +206,8 @@ class EricClient:
         xml_text: str,
         datenart_version: str,
         flags: int,
-        print_params: Optional[eric_druck_parameter_t],
-        crypto_params: Optional[eric_verschluesselungs_parameter_t],
+        print_params: Optional[Any],
+        crypto_params: Optional[Any],
         transfer_handle: Optional[int],
     ) -> EricResult:
         xml_bytes = xml_text.encode("utf-8")

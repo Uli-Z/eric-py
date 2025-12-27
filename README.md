@@ -93,13 +93,14 @@ For this release, `eric-py` is developed and tested against the following
 ERiC version(s):
 
 - `41.6.2.0`
+- `43.3.2.0`
 
 The Python API supports selecting different ERiC installations by path:
 
 ```python
 from eric_py.facade import EricClient
 
-with EricClient(eric_home="/opt/eric/41.6.2.0/Linux-x86_64") as client:
+with EricClient(eric_home="/opt/eric/43.3.2.0/Linux-x86_64") as client:
     ...
 ```
 
@@ -120,20 +121,21 @@ pytest
 
 For integration tests, place the official ERiC distribution alongside this
 repository and/or point `ERIC_HOME` to it.
-One recommended layout for ERiC 41.6.2.0 is:
+One recommended layout for ERiC 43.3.2.0 is:
 
 ```text
 /path/to/workspace/
-  ERiC-41.6.2.0/
-    Linux-x86_64/
-      lib/libericapi.so
-      erictoolkit/liberictoolkit.so
+  ERiC-43.3.2.0-Linux-x86_64/
+    ERiC-43.3.2.0/
+      Linux-x86_64/
+        lib/libericapi.so
+        erictoolkit/liberictoolkit.so
   eric-py/
     ...
 ```
 
 If `ERIC_HOME` is not set, the test suite will automatically use
-`../ERiC-41.6.2.0/Linux-x86_64` relative to the repository root when present.
+`../ERiC-43.3.2.0-Linux-x86_64/ERiC-43.3.2.0/Linux-x86_64` relative to the repository root when present.
 
 Sending XML to ELSTER is not executed by default. To opt into send tests,
 you must provide credentials and explicitly enable them:

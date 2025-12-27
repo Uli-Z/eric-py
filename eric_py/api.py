@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ctypes
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from . import loader
 from .types import (
@@ -13,8 +13,6 @@ from .types import (
     EricRueckgabepufferHandle,
     EricTransferHandle,
     EricZertifikatHandle,
-    eric_druck_parameter_t,
-    eric_verschluesselungs_parameter_t,
 )
 
 # Load shared libraries once.
@@ -32,17 +30,9 @@ EricBeende = _ericapi.EricBeende
 EricBeende.argtypes = []
 EricBeende.restype = ctypes.c_int
 
+# Configured dynamically in configure_bindings()
 EricBearbeiteVorgang = _ericapi.EricBearbeiteVorgang
-EricBearbeiteVorgang.argtypes = [
-    ctypes.c_char_p,  # datenpuffer
-    ctypes.c_char_p,  # datenartVersion
-    ctypes.c_uint32,  # bearbeitungsFlags
-    ctypes.POINTER(eric_druck_parameter_t),  # druckParameter
-    ctypes.POINTER(eric_verschluesselungs_parameter_t),  # cryptoParameter
-    ctypes.POINTER(EricTransferHandle),  # transferHandle
-    EricRueckgabepufferHandle,  # rueckgabeXmlPuffer
-    EricRueckgabepufferHandle,  # serverantwortXmlPuffer
-]
+# EricBearbeiteVorgang.argtypes = [...]
 EricBearbeiteVorgang.restype = ctypes.c_int
 
 EricCheckXML = _ericapi.EricCheckXML
@@ -117,6 +107,20 @@ EricRegistriereFortschrittCallback.restype = ctypes.c_int
 
 # ---------------------------------------------------------------------------
 # Helper utilities
+
+
+def configure_bindings(binding_module: Any) -> None:
+    """Apply version-specific binding configurations."""
+    EricBearbeiteVorgang.argtypes = [
+        ctypes.c_char_p,  # datenpuffer
+        ctypes.c_char_p,  # datenartVersion
+        ctypes.c_uint32,  # bearbeitungsFlags
+        ctypes.POINTER(binding_module.eric_druck_parameter_t),  # druckParameter
+        ctypes.POINTER(binding_module.eric_verschluesselungs_parameter_t),  # cryptoParameter
+        ctypes.POINTER(EricTransferHandle),  # transferHandle
+        EricRueckgabepufferHandle,  # rueckgabeXmlPuffer
+        EricRueckgabepufferHandle,  # serverantwortXmlPuffer
+    ]
 
 
 def create_buffer() -> EricRueckgabepufferHandle:

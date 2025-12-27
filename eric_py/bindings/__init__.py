@@ -1,0 +1,1 @@
+"""Version-specific struct definitions."""
